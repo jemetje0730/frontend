@@ -13,7 +13,7 @@ const ImageNode = ({ id, data, deleteNode }) => {
         borderRadius: 6,
         background: "white",
         width: size,          // 전체 width = size
-        height: size + 30,    // 이미지 + 라벨 공간
+        height: size + 10,    // 이미지 + 라벨 공간
         boxSizing: "border-box", // padding도 width, height에 포함
         textAlign: "center",
         userSelect: "none",
@@ -70,8 +70,8 @@ const ImageNode = ({ id, data, deleteNode }) => {
 
       <div
         style={{
-          marginTop: 6,
-          marginBottom: 4,
+          marginTop: -30,
+          marginBottom: 2,
           fontSize: 12,
           fontWeight: "bold",
           overflow: "hidden",

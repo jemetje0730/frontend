@@ -15,9 +15,9 @@ const KeyboardNode = ({ data, id, deleteNode }) => {
       style={{
         width: 140,
         padding: 8,
-        border: "2px dashed #999",
+        border: "1px solid black",
         borderRadius: 6,
-        background: "#fef3c7",
+        background: "white",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",

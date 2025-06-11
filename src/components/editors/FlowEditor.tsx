@@ -257,32 +257,6 @@ const FlowEditor = () => {
 
       <div style={{
         position: "absolute",
-        bottom: 8,
-        right: 8,
-        padding: "4px 8px",
-        backgroundColor: "rgba(0,0,0,0.6)",
-        color: "white",
-        fontSize: 11,
-        borderRadius: 4,
-        userSelect: "none",
-        maxWidth: 200,
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        zIndex: 10,
-      }}>
-        {nodes.length > 0
-          ? nodes
-              .map((node) => {
-                const label = node.data.label || node.data.value || "Unnamed";
-                return `${label}`;
-              })
-              .join(" | ")
-          : "No nodes yet"}
-      </div>
-
-      <div style={{
-        position: "absolute",
         top: 8,
         right: 8,
         display: "flex",

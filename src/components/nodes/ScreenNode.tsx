@@ -13,7 +13,7 @@ const ScreenNode: React.FC<ScreenNodeProps> = ({ id, selected, deleteNode }) => 
         padding: 10,
         backgroundColor: "white",
         borderRadius: 6,
-        border: selected ? "2px solid #eab308" : "1px solid #d97706",
+        border: "1px solid black",
         minWidth: 100,
         textAlign: "center",
       }}
@@ -49,7 +49,7 @@ const ScreenNode: React.FC<ScreenNodeProps> = ({ id, selected, deleteNode }) => 
       <Handle type="target" position={Position.Top} style={{ background: "#000" }} />
       <Handle type="source" position={Position.Bottom} style={{ background: "#000" }} />
 
-      <strong>📺 Screen</strong>
+      <strong>Screen Compare</strong>
     </div>
   );
 };
