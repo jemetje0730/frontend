@@ -69,7 +69,7 @@ const StepsPanel: React.FC<Props> = ({ nodes, edges }) => {
         right: 0,
         top: 0,
         width: 250,
-        height: "100%",
+        height: "75%",
         background: "#f9fafb",
         borderLeft: "1px solid #ddd",
         padding: 16,
