@@ -9,7 +9,6 @@ interface Props {
 const StepsPanel: React.FC<Props> = ({ nodes, edges }) => {
   const orderedSteps = React.useMemo(() => {
     const steps: string[] = [];
-
     const visited = new Set<string>();
     const edgeMap = new Map<string, string[]>();
 
