@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import type { Connection, ReactFlowInstance } from "reactflow";
 import { buildSteps } from "../../utils/buildSteps";
 import ReactFlow, {
@@ -20,6 +20,8 @@ import ScreenNode from "../nodes/ScreenNode";
 import ActionEdge from "../edges/ActionEdge";
 import { nanoid } from "nanoid";
 
+const LOCAL_STORAGE_KEY = "flow_scenario_state";
+
 const FlowEditor = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -33,6 +35,30 @@ const FlowEditor = () => {
   ]);
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
+  const [isResetting, setIsResetting] = useState(false);
+  const [initialized, setInitialized] = useState(false);
+
+  // 복원
+  useEffect(() => {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (saved) {
+      try {
+        const { nodes: savedNodes, edges: savedEdges } = JSON.parse(saved);
+        setNodes(savedNodes || []);
+        setEdges(savedEdges || []);
+      } catch (e) {
+        console.error("복원 실패:", e);
+      }
+    }
+    setInitialized(true);
+  }, []);
+
+  // 저장
+  useEffect(() => {
+    if (initialized && !isResetting) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ nodes, edges }));
+    }
+  }, [nodes, edges, initialized, isResetting]);
 
   const deleteNode = useCallback(
     (id: string) => {
@@ -214,13 +240,34 @@ const FlowEditor = () => {
 
   // 서버 저장 함수
   const saveScenario = async () => {
+    // 노드가 존재하고 엣지가 하나도 없으면 저장 불가
+    if (nodes.length > 0 && edges.length === 0) {
+      alert("노드는 존재하지만 연결된 엣지가 없습니다. 저장할 수 없습니다.");
+      return;
+    }
+
+    // 모든 노드가 적어도 하나의 엣지와 연결되어 있는지 체크
+    const disconnectedNodes = nodes.filter(
+      (node) =>
+        !edges.some(
+          (edge) => edge.source === node.id || edge.target === node.id
+        )
+    );
+
+    if (disconnectedNodes.length > 0) {
+      alert(
+        `연결되지 않은 노드가 존재합니다.`
+      );
+      return;
+    }
+
     try {
       const res = await fetch("http://localhost:5000/save-scenario", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(steps),
+        body: JSON.stringify(buildSteps(nodes, edges)),
       });
 
       const result = await res.json();
@@ -352,6 +399,26 @@ const FlowEditor = () => {
           zIndex: 10,
         }}
       >
+        <button
+          onClick={() => {
+            setIsResetting(true);
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+            setNodes([]);
+            setEdges([]);
+            setTimeout(() => setIsResetting(false), 0);
+          }}
+          style={{
+            padding: "6px 12px",
+            backgroundColor: "#f97316",
+            border: "none",
+            borderRadius: 4,
+            color: "white",
+            cursor: "pointer",
+            fontSize: 13,
+          }}
+        >
+          Reset
+        </button>
         <button
           onClick={saveScenario}
           style={{

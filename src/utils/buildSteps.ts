@@ -22,6 +22,8 @@ export function buildSteps(nodes: Node[], edges: Edge[]): Step[] {
     const node = nodes.find((n) => n.id === nodeId);
     if (!node) return;
 
+    const outgoing = edges.filter((e) => e.source === nodeId);
+
     // 노드 step을 먼저 추가
     if (node.type === "keyboardNode") {
       steps.push({
@@ -30,10 +32,18 @@ export function buildSteps(nodes: Node[], edges: Edge[]): Step[] {
         target: node.data?.value,
       });
     } else if (node.type === "screenNode") {
-      steps.push({ key: "R" });
+      // screenNode 다음 imageNode 찾기
+      let target = "";
+      for (const edge of outgoing) {
+        const nextNode = nodes.find((n) => n.id === edge.target);
+        if (nextNode?.type === "imageNode") {
+          const fullUrl = nextNode.data?.imageUrl ?? "";
+          target = fullUrl.split("/").pop() ?? "";
+          break; // 첫번째 imageNode만 사용
+        }
+      }
+      steps.push({ key: "R", action: "screen", target });
     }
-
-    const outgoing = edges.filter((e) => e.source === nodeId);
 
     for (const edge of outgoing) {
       const targetNode = nodes.find((n) => n.id === edge.target);
@@ -87,4 +97,3 @@ export function buildSteps(nodes: Node[], edges: Edge[]): Step[] {
 
   return steps;
 }
-
