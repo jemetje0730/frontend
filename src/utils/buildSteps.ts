@@ -5,6 +5,7 @@ type Step = {
   action?: string;
   target?: string;
   position?: string | number[];
+  wait?: number;
 };
 
 export function buildSteps(nodes: Node[], edges: Edge[]): Step[] {
@@ -21,6 +22,7 @@ export function buildSteps(nodes: Node[], edges: Edge[]): Step[] {
     const node = nodes.find((n) => n.id === nodeId);
     if (!node) return;
 
+    // 노드 step을 먼저 추가
     if (node.type === "keyboardNode") {
       steps.push({
         key: "A",
@@ -32,25 +34,34 @@ export function buildSteps(nodes: Node[], edges: Edge[]): Step[] {
     }
 
     const outgoing = edges.filter((e) => e.source === nodeId);
+
     for (const edge of outgoing) {
       const targetNode = nodes.find((n) => n.id === edge.target);
 
+      // waitNode 처리 (병합)
+      if (targetNode?.type === "waitNode") {
+        const wait = targetNode.data?.wait ?? 0.5;
+        if (steps.length > 0) {
+          const last = steps[steps.length - 1];
+          last.wait = wait;
+        }
+        dfs(edge.target);
+        continue;
+      }
+
       if (edge.data?.action) {
         let pos = edge.data.position ?? "center";
-        if (Array.isArray(pos)) {
-          pos = pos.join(",");
-        }
+        if (Array.isArray(pos)) pos = pos.join(",");
 
-        // 이미지 파일명 추출
         let target = "";
         if (targetNode?.type === "imageNode") {
           const fullUrl = targetNode.data?.imageUrl ?? "";
-          target = fullUrl.split("/").pop() ?? ""; // 마지막 경로 조각만 사용
+          target = fullUrl.split("/").pop() ?? "";
         } else {
           target = targetNode?.data?.src ?? "";
         }
 
-        const step: Step = {
+        const edgeStep: Step = {
           key: "A",
           action: edge.data.action,
           position: pos,
@@ -58,11 +69,11 @@ export function buildSteps(nodes: Node[], edges: Edge[]): Step[] {
         };
 
         if (edge.data.action === "next") {
-          delete step.position;
-          delete step.target;
+          delete edgeStep.position;
+          delete edgeStep.target;
         }
 
-        steps.push(step);
+        steps.push(edgeStep);
       }
 
       dfs(edge.target);
@@ -76,3 +87,4 @@ export function buildSteps(nodes: Node[], edges: Edge[]): Step[] {
 
   return steps;
 }
+

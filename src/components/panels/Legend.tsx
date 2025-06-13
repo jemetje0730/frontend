@@ -1,4 +1,3 @@
-import React from 'react';
 import { MOUSE_ACTIONS, KEYBOARD_ACTIONS } from '../../constants/actionColors';
 
 const Legend = () => {

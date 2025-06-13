@@ -37,6 +37,9 @@ const StepsPanel: React.FC<Props> = ({ nodes, edges }) => {
         steps.push(`${keyType}: ${keyValue}`);
       } else if (node.type === "screenNode") {
         steps.push(`화면 비교`);
+      } else if (node.type === "waitNode") {
+        const wait = node.data?.wait ?? 0.5;
+        steps.push(`wait: ${wait}s`);
       }
 
       const outgoing = edges.filter((e) => e.source === nodeId);

@@ -10,6 +10,7 @@ import ReactFlow, {
   ConnectionLineType,
 } from "reactflow";
 
+import WaitNode from "../nodes/WaitNode";
 import "reactflow/dist/style.css";
 import Sidebar from "../panels/Sidebar";
 import StepsPanel from "../panels/StepsPanel";
@@ -45,15 +46,12 @@ const FlowEditor = () => {
 
   const nodeTypes = useMemo(
     () => ({
-      imageNode: (props: any) => (
-        <ImageNode {...props} deleteNode={deleteNode} />
-      ),
-      keyboardNode: (props: any) => (
+      imageNode: (props) => <ImageNode {...props} deleteNode={deleteNode} />,
+      keyboardNode: (props) => (
         <KeyboardNode {...props} deleteNode={deleteNode} />
       ),
-      screenNode: (props: any) => (
-        <ScreenNode {...props} deleteNode={deleteNode} />
-      ),
+      screenNode: (props) => <ScreenNode {...props} deleteNode={deleteNode} />,
+      waitNode: (props) => <WaitNode {...props} deleteNode={deleteNode} />,
     }),
     [deleteNode]
   );
@@ -158,6 +156,26 @@ const FlowEditor = () => {
             data: { type: actualType, value: "" },
           },
         ]);
+      } else if (type === "waitNode") {
+        setNodes((nds) => [
+          ...nds,
+          {
+            id,
+            type: "waitNode",
+            position,
+            data: {
+              wait: 0.5,
+              onChange: (nodeId, newWait) =>
+                setNodes((nodes) =>
+                  nodes.map((n) =>
+                    n.id === nodeId
+                      ? { ...n, data: { ...n.data, wait: newWait } }
+                      : n
+                  )
+                ),
+            },
+          },
+        ]);
       } else if (type === "imageNode") {
         setNodes((nds) => [
           ...nds,
@@ -179,19 +197,18 @@ const FlowEditor = () => {
   );
 
   const runScenario = async () => {
-  try {
-    const res = await fetch("http://localhost:5000/run-scenario", {
-      method: "POST",
-    });
-    const result = await res.json();
-    console.log("실행 결과:", result);
-    alert(result.message || "시나리오 실행 완료!");
-  } catch (err) {
-    console.error("실행 실패:", err);
-    alert("시나리오 실행 실패");
-  }
-};
-
+    try {
+      const res = await fetch("http://localhost:5000/run-scenario", {
+        method: "POST",
+      });
+      const result = await res.json();
+      console.log("실행 결과:", result);
+      alert(result.message || "시나리오 실행 완료!");
+    } catch (err) {
+      console.error("실행 실패:", err);
+      alert("시나리오 실행 실패");
+    }
+  };
 
   const steps = buildSteps(nodes, edges);
 
